@@ -3,7 +3,7 @@
 import os
 import openai
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+openai.api_key = os.getenv("KEY_DAAL")
 
 def generate_report(findings_text):
     response = openai.ChatCompletion.create(
