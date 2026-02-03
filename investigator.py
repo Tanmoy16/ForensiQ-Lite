@@ -1,21 +1,19 @@
 from timeline import build_timeline
-from ai.llm_client import generate_report
-from ai.prompts import REPORT_PROMPT
-import json
+from ai.summarizer import generate_summary
+from Parser.browser import parse_browser_history
 
-def main():
-    timeline = build_timeline(...)
+# Parse available evidence (browser history) and build timeline
+events_parsed = parse_browser_history("Evidence/browser.csv")
+events = build_timeline(events_parsed)
 
-    findings = {
-        "timeline": timeline
-    }
+timeline_text = "\n".join(
+    f"{e['timestamp']} - {e['description']} ({e['source']})"
+    for e in events
+)
 
-    with open("report/findings.json", "w") as f:
-        json.dump(findings, f, indent=2)
+summary = generate_summary(timeline_text)
 
-    findings_text = REPORT_PROMPT + "\n" + json.dumps(findings, indent=2)
+with open("report.md", "w") as f:
+    f.write(summary)
 
-    report = generate_report(findings_text)
-
-    with open("report/report.md", "w") as f:
-        f.write(report)
+print("✔ Investigation report generated")

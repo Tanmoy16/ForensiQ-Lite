@@ -1,0 +1,9 @@
+On [Date], at approximately [Time], a suspicious network connection was detected originating from an internal workstation (IP address: 192.168.1.5) to an external command and control server (IP address: 8.8.8.8). The initial connection attempt was blocked by the firewall, but subsequent attempts were successful.
+
+The workstation in question belonged to [Employee Name], a system administrator with elevated privileges. Employee [Name] had been observed accessing the command and control server multiple times throughout the day, suggesting a prolonged engagement with the attacker or malware.
+
+Further analysis of network traffic revealed that the workstation had downloaded and installed a remote access trojan (RAT) named "DarkComet" from the command and control server. The RAT was able to establish a persistent connection, allowing the attacker to remotely access and control the infected workstation.
+
+The attack sequence is believed to have started with a spear-phishing email targeting Employee [Name], containing a malicious attachment designed to exploit a known vulnerability in Microsoft Office. The email was successfully delivered to Employee [Name]'s mailbox, and they opened the attachment, thereby installing the RAT on their workstation.
+
+The attacker's intent is unclear at this time, but potential actions include data exfiltration, system manipulation, or further lateral movement within the network. The incident response team has contained the threat by isolating the infected workstation and terminating the connection to the command and control server. Further investigation is ongoing to determine the scope
