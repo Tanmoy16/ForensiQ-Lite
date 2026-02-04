@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ForensiQ-Lite · Digital Forensics Platform</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Enhanced Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">
+                        <i class="fas fa-shield-halved"></i>
+                    </div>
+                    <div class="logo-text">
+                        <h1>ForensiQ</h1>
+                        <span class="version">Lite v2.0</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="upload-section">
+                <div class="section-header">
+                    <h3>Evidence Upload</h3>
+                    <span class="file-count" id="fileCount">0 files</span>
+                </div>
+                
+                <div class="drop-zone" id="dropZone">
+                    <div class="drop-zone-content">
+                        <div class="upload-icon">
+                            <i class="fas fa-cloud-arrow-up"></i>
+                        </div>
+                        <h4>Drop files here</h4>
+                        <p>or click to browse</p>
+                        <div class="supported-formats">
+                            <span class="format-badge">CSV</span>
+                            <span class="format-badge">LOG</span>
+                            <span class="format-badge">EXE</span>
+                            <span class="format-badge">TXT</span>
+                        </div>
+                    </div>
+                    <input type="file" id="fileInput" multiple hidden accept=".csv,.log,.exe,.txt">
+                </div>
+                
+                <div id="fileList" class="file-list"></div>
+
+                <button id="analyzeBtn" class="btn-primary" disabled>
+                    <i class="fas fa-wand-magic-sparkles"></i>
+                    <span>Start Analysis</span>
+                </button>
+            </div>
+
+            <div class="sidebar-footer">
+                <div class="status-indicator">
+                    <span class="status-dot"></span>
+                    <span class="status-text">System Ready</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Welcome Screen -->
+            <div id="welcomeScreen" class="welcome-screen">
+                <div class="welcome-content">
+                    <div class="welcome-icon">
+                        <i class="fas fa-fingerprint"></i>
+                    </div>
+                    <h2>AI-Powered Forensic Analysis</h2>
+                    <p>Upload digital evidence to generate comprehensive attack timelines and security insights</p>
+                    <div class="feature-grid">
+                        <div class="feature-card">
+                            <i class="fas fa-brain"></i>
+                            <h4>AI Analysis</h4>
+                            <p>Machine learning powered investigation</p>
+                        </div>
+                        <div class="feature-card">
+                            <i class="fas fa-timeline"></i>
+                            <h4>Timeline Generation</h4>
+                            <p>Chronological event reconstruction</p>
+                        </div>
+                        <div class="feature-card">
+                            <i class="fas fa-chart-line"></i>
+                            <h4>Pattern Detection</h4>
+                            <p>Identify suspicious activities</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Results Screen -->
+            <div id="resultsScreen" class="results-screen hidden">
+                <div class="results-header">
+                    <div class="results-title">
+                        <h2>Analysis Results</h2>
+                        <p class="analysis-time" id="analysisTime"></p>
+                    </div>
+                    <button class="btn-secondary" onclick="resetAnalysis()">
+                        <i class="fas fa-arrow-left"></i>
+                        New Analysis
+                    </button>
+                </div>
+
+                <div class="tabs">
+                    <button class="tab-btn active" onclick="switchTab('report')">
+                        <i class="fas fa-file-lines"></i>
+                        <span>Executive Report</span>
+                    </button>
+                    <button class="tab-btn" onclick="switchTab('timeline')">
+                        <i class="fas fa-clock-rotate-left"></i>
+                        <span>Event Timeline</span>
+                    </button>
+                </div>
+
+                <!-- Report Tab -->
+                <div id="reportTab" class="tab-content active">
+                    <div class="report-container">
+                        <div class="report-header">
+                            <div class="report-title">
+                                <i class="fas fa-file-contract"></i>
+                                <span>generated_report.md</span>
+                            </div>
+                            <div class="report-actions">
+                                <button class="icon-btn" title="Copy to clipboard">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                                <button class="icon-btn" title="Download report">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="report-body" id="reportContent">
+                            <div class="loading-skeleton">
+                                <div class="skeleton-line"></div>
+                                <div class="skeleton-line"></div>
+                                <div class="skeleton-line short"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline Tab -->
+                <div id="timelineTab" class="tab-content">
+                    <div class="timeline-container">
+                        <div class="timeline-header">
+                            <h3>Event Timeline</h3>
+                            <div class="timeline-filters">
+                                <button class="filter-btn active" data-filter="all">All Events</button>
+                                <button class="filter-btn" data-filter="auth">Authentication</button>
+                                <button class="filter-btn" data-filter="browser">Browser</button>
+                                <button class="filter-btn" data-filter="file">File System</button>
+                            </div>
+                        </div>
+                        <div class="timeline-feed" id="timelineFeed">
+                            <!-- Events will be inserted here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

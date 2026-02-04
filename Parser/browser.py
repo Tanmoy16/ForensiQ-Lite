@@ -2,117 +2,55 @@ import csv
 from datetime import datetime
 from typing import List, Dict
 
-
 def normalize_timestamp(timestamp_str: str) -> str:
-    """
-    Convert various timestamp formats to ISO-8601
-    
-    Args:
-        timestamp_str: Raw timestamp string from CSV
-        
-    Returns:
-        ISO-8601 formatted timestamp string
-    """
-    # Common timestamp formats found in browser histories
+    # (Keep your existing timestamp logic or use this simplified one)
     formats = [
-        "%Y-%m-%d %H:%M:%S",           # 2024-01-15 14:30:45
-        "%Y-%m-%dT%H:%M:%S",           # 2024-01-15T14:30:45
-        "%Y-%m-%d %H:%M:%S.%f",        # 2024-01-15 14:30:45.123456
-        "%m/%d/%Y %H:%M:%S",           # 01/15/2024 14:30:45
-        "%m/%d/%Y %I:%M:%S %p",        # 01/15/2024 02:30:45 PM
-        "%d/%m/%Y %H:%M:%S",           # 15/01/2024 14:30:45
-        "%Y%m%d%H%M%S",                # 20240115143045
+        "%Y-%m-%d %H:%M:%S", "%Y-%m-%dT%H:%M:%S", "%Y-%m-%d %H:%M:%S.%f",
+        "%m/%d/%Y %H:%M:%S", "%d/%m/%Y %H:%M:%S", "%Y%m%d%H%M%S"
     ]
-    
     for fmt in formats:
         try:
-            dt = datetime.strptime(timestamp_str.strip(), fmt)
-            return dt.isoformat()
+            return datetime.strptime(timestamp_str.strip(), fmt).isoformat()
         except ValueError:
             continue
-    
-    # If already ISO-8601 or unrecognized, return as-is
     return timestamp_str.strip()
 
-
 def parse_browser_history(filepath: str) -> List[Dict[str, str]]:
-    """
-    Parse browser history CSV file and extract forensic events
-    
-    Args:
-        filepath: Path to browser history CSV file (read-only)
-        
-    Returns:
-        List of forensic event dictionaries
-    """
     events = []
-    
     try:
-        # Open file in read-only mode
-        with open(filepath, 'r', encoding='utf-8', newline='') as csvfile:
-            # Auto-detect CSV dialect
-            reader = csv.DictReader(csvfile)
+        with open(filepath, 'r', encoding='utf-8', errors='replace') as csvfile:
+            # Read first few bytes to sniff delimiter (comma vs semicolon)
+            sample = csvfile.read(1024)
+            csvfile.seek(0)
+            dialect = csv.Sniffer().sniff(sample) if sample else 'excel'
             
+            reader = csv.DictReader(csvfile, dialect=dialect)
+            
+            # AUTO-DETECT HEADERS
+            # We look for the best matching column name for "timestamp" and "url"
+            headers = reader.fieldnames or []
+            time_col = next((h for h in headers if 'time' in h.lower() or 'date' in h.lower()), 'timestamp')
+            url_col = next((h for h in headers if 'url' in h.lower() or 'link' in h.lower()), 'url')
+
+            print(f"   [Debug] Using CSV Headers -> Time: '{time_col}', URL: '{url_col}'")
+
             for row in reader:
-                # Skip empty rows
-                if not row:
+                if not row: continue
+                
+                # Flexible extraction
+                timestamp = row.get(time_col, '').strip()
+                url = row.get(url_col, '').strip()
+                
+                if not timestamp or not url:
                     continue
-                
-                # Extract timestamp (required field)
-                timestamp = row.get('timestamp', '').strip()
-                if not timestamp:
-                    continue
-                
-                # Normalize timestamp to ISO-8601
-                iso_timestamp = normalize_timestamp(timestamp)
-                
-                # Extract URL (required field)
-                url = row.get('url', '').strip()
-                if not url:
-                    continue
-                
-                # Check if this was a download event
-                downloaded_file = row.get('downloaded_file', '').strip()
-                
-                if downloaded_file:
-                    # Download event
-                    description = f"Downloaded file: {downloaded_file}"
-                else:
-                    # Regular URL visit
-                    description = f"Visited URL: {url}"
-                
-                # Create forensic event
-                event = {
-                    "timestamp": iso_timestamp,
-                    "description": description,
+
+                events.append({
+                    "timestamp": normalize_timestamp(timestamp),
+                    "description": f"Visited URL: {url}",
                     "source": "browser"
-                }
+                })
                 
-                events.append(event)
-    
-    except FileNotFoundError:
-        print(f"Error: File not found: {filepath}")
-    except PermissionError:
-        print(f"Error: Permission denied: {filepath}")
     except Exception as e:
-        print(f"Error parsing file: {e}")
+        print(f"   [Error] CSV Parse Error: {e}")
     
     return events
-
-
-def main():
-    """
-    Example usage of the browser history parser
-    """
-    # Example: Parse a browser history file
-    filepath = "browser_history.csv"
-    events = parse_browser_history(filepath)
-    
-    # Display results
-    print(f"Extracted {len(events)} forensic events")
-    for event in events:
-        print(f"[{event['timestamp']}] {event['description']}")
-
-
-if __name__ == "__main__":
-    main()
