@@ -17,11 +17,11 @@ app = Flask(__name__)
 UPLOAD_FOLDER = 'Evidence'
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
-# --- OPTIMIZED SETTINGS (For 4096 Token Context) ---
-# We can now process ~30 events per batch (approx 2000-3000 tokens)
-# This leaves ~1000 tokens for the AI's response.
-BATCH_SIZE = 30
-MAX_CHARS_PER_BATCH = 10000 
+# --- M1 OPTIMIZED SETTINGS ---
+# 8192 Tokens allow for massive batches.
+# 100 events = approx 4000-6000 tokens. Safe for 8k context.
+BATCH_SIZE = 100
+MAX_CHARS_PER_BATCH = 25000 
 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
@@ -45,13 +45,12 @@ def clear_evidence_folder():
 
 def process_timeline_in_batches(timeline):
     """
-    Splits the timeline into optimal chunks for the Mistral 4K context window.
+    Splits the timeline into large chunks for the M1-optimized context window.
     """
     total_events = len(timeline)
-    # Calculate batches
     num_batches = math.ceil(total_events / BATCH_SIZE)
     
-    print(f"--- AI: Splitting {total_events} events into {num_batches} optimized batch(es)... ---")
+    print(f"--- AI: Splitting {total_events} events into {num_batches} large batch(es)... ---")
     
     full_narrative = []
     
@@ -66,7 +65,7 @@ def process_timeline_in_batches(timeline):
             for e in batch_events
         )
         
-        # 2. Safety Check (Just in case massive logs appear)
+        # 2. Safety Check 
         if len(batch_text) > MAX_CHARS_PER_BATCH:
             print(f"   [Batch {i+1}] Truncating text from {len(batch_text)} to {MAX_CHARS_PER_BATCH} chars.")
             batch_text = batch_text[:MAX_CHARS_PER_BATCH] + "\n...[TRUNCATED]..."
@@ -93,7 +92,7 @@ def index():
 
 @app.route('/analyze', methods=['POST'])
 def analyze():
-    print("\n=== STARTING INVESTIGATION (HIGH PERFORMANCE MODE) ===")
+    print("\n=== STARTING INVESTIGATION (M1 SILICON MODE) ===")
     
     clear_evidence_folder()
     
