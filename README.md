@@ -44,7 +44,7 @@ Built with a focus on data privacy, all AI processing is done **locally** on you
 
 1.  **Clone the repository:**
     ```bash
-    git clone [https://github.com/yourusername/ForensiQ-Lite.git](https://github.com/yourusername/ForensiQ-Lite.git)
+    git clone [https://github.com/Tanmoy16/ForensiQ-Lite.git](https://github.com/Tanmoy16/ForensiQ-Lite.git)
     cd ForensiQ-Lite
     ```
 
